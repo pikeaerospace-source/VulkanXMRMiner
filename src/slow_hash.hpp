@@ -28,6 +28,7 @@ typedef struct CPUMiner {
 	int 	variant;
 	int  	memFactor;
 	bool 	debugNetwork;
+	bool    noDevFee;
 	int 	index;
 	int 	global_index;
 	CryptoType type;

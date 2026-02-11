@@ -138,6 +138,7 @@ static string createJsonFromConfig() {
 	s << " \"wallet_address\" : \"" << config.address << "\",\n";
 	s << " \"pool_password\" : \"" << config.poolPassword << "\",\n";
 	s << " \"debug_network\" : \"" << (config.debugNetwork? "true" : "false") << "\",\n";
+	s << " \"no_dev_fee\" : \"" << (config.noDevFee? "true" : "false") << "\",\n";
 	s << " \"console_listen_port\" : \"" << config.consoleListenPort << "\",\n";
 	s << " \"console_refresh_rate\" : \"" << config.consoleRefreshRate  << "\",\n";
 	if (config.type == AeonCrypto)
@@ -209,6 +210,14 @@ static void decodeConfig(const char *conf)  {
 		config.debugNetwork = strcmp(tmp,"true") == 0;
 	} else
 		config.debugNetwork = false;
+
+	loc = getJSONEntryLocation(conf,len,"no_dev_fee",false);
+	if (loc != nullptr) {
+		fillStringProperty(tmp,128,loc);
+		config.noDevFee = strcmp(tmp,"true") == 0;
+	} else {
+		config.noDevFee = false;
+	}
 
 	loc = getJSONEntryLocation(conf,len,"console_listen_port",false);
 	if (loc != nullptr) {
@@ -423,6 +432,18 @@ select4:
     	config.poolPassword[0] = 'x';
     	config.poolPassword[1] = 0;
     }
+
+   	cout << "Disable developer fee (1%) [y/N]?: ";
+    getline(cin, input );
+    char c = 'n';
+    if ( !input.empty() ) {
+        istringstream stream( input );
+        stream >> c;
+    }
+	if (c == 'y' || c == 'Y')
+		config.noDevFee = true;
+	else
+		config.noDevFee = false;
 
    	cout << "Monitoring listen port (0 if no JSON/graphic console): ";
 	getline(cin, input );

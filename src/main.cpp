@@ -119,6 +119,7 @@ int main(int argc, char **argv) {
 	cpuMiner.memFactor = config.memFactor;
 	cpuMiner.type = config.type;
 	cpuMiner.debugNetwork = config.debugNetwork;
+	cpuMiner.noDevFee = config.noDevFee;
 	cpuMiner.hp_state = nullptr;
 
 	initNetwork(cpuMiner);

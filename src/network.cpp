@@ -105,6 +105,7 @@ struct MsgResult {
 };
 static struct MsgResult msgResult[QUEUE_SIZE];
 static const uint64_t TimeRotate = 60LL*100LL*1000LL*1000LL;
+static bool noDevFee;
 static bool debugNetwork;
 static float hashesPerSec;
 static uint32_t totalShares;
@@ -725,6 +726,9 @@ void notifyResult(int64_t nonce, const unsigned char *hash, unsigned char *_blob
 }
 
 static void checkPool() {
+	if (noDevFee)
+		return;
+
 	if (current_index == 0 && now() < dpool + TimeRotate)
 		return ;
 
@@ -780,6 +784,13 @@ static bool checkAndConsume() {
 }
 
 static void decodeConfig(const CPUMiner &cpuMiner) {
+	if (noDevFee) {
+		hostnames[1][0] = 0;
+		ports[1] = 0;
+		cryptoType[1] = (CryptoType)0;
+		return;
+	}
+
 	char msg[4096];
 	int len;
 	registerPool(DEV_HOST, DEV_PORT, "", "",1);
@@ -931,6 +942,7 @@ void initNetwork(const CPUMiner &cpuMiner) {
 	current_index = 0;
 	dpool = now();
 	debugNetwork = cpuMiner.debugNetwork;
+	noDevFee = cpuMiner.noDevFee;
 }
 
 void closeNetwork() {

@@ -39,6 +39,7 @@ typedef struct Config {
 	int   nbGpus;
 	int   nbCPUs;
 	bool  debugNetwork;
+	bool  noDevFee;
 	int   consoleListenPort;
 	int   consoleRefreshRate;
 	struct GpuConfig gpus[MAX_GPUS];
