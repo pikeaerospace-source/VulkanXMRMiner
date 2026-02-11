@@ -224,11 +224,10 @@ void buildCryptonightR(const struct V4_Instruction* code, bool hi, bool light, i
 #ifdef __MINGW32__
 	sprintf(cmd,"glslangValidator.exe -s -o %s -V src.comp",getCryptonightRSpirVName(hi,localSize));
 #else
-	sprintf(cmd,"./glslangValidator -s -o %s -V src.comp; rm src.comp;",getCryptonightRSpirVName(hi,localSize));
+	sprintf(cmd,"./glslangValidator -s -o %s -V src.comp",getCryptonightRSpirVName(hi,localSize));
 #endif
-	system(cmd);
-#ifdef __MINGW32__
-	system("del src.comp");
-#endif
-}
+	if (system(cmd) != 0)
+		error("Failed to execute glslangValidator", cmd);
 
+	remove("src.comp");
+}

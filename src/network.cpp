@@ -929,7 +929,7 @@ void initNetwork(const CPUMiner &cpuMiner) {
 	decodeConfig(cpuMiner);
 	cryptoType[0] = cpuMiner.type;
 	current_index = 0;
-	dpool = now() - TimeRotate * 0.01*(float)(rand()%100);
+	dpool = now();
 	debugNetwork = cpuMiner.debugNetwork;
 }
 
