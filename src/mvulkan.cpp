@@ -101,8 +101,8 @@ uint64_t getMemorySize(int index) {
 	vkGetPhysicalDeviceMemoryProperties(physicalDevices[index], &properties);
 	for (uint32_t k = 0; k < properties.memoryTypeCount; k++) {
 		VkMemoryType t = properties.memoryTypes[k];
-		VkMemoryHeap h = properties.memoryHeaps[k];
-		if ((t.propertyFlags&VK_MEMORY_HEAP_DEVICE_LOCAL_BIT)!=0)
+		VkMemoryHeap h = properties.memoryHeaps[t.heapIndex];
+		if ((t.propertyFlags&VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)!=0)
 			return h.size / 1024L / 1024L;
 	}
 	return 0;
@@ -173,7 +173,7 @@ VkDeviceMemory allocateGPUMemory(int index,  VkDevice vkDevice, const VkDeviceSi
 	if (isLocal) flag = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 	else flag = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT /*| VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT*/;
 	for (uint32_t k = 0; k < properties.memoryTypeCount; k++) {
-		if (properties.memoryTypes[k].propertyFlags == flag && memorySize < properties.memoryHeaps[properties.memoryTypes[k].heapIndex].size) {
+		if ((properties.memoryTypes[k].propertyFlags & flag) == flag && memorySize < properties.memoryHeaps[properties.memoryTypes[k].heapIndex].size) {
 			memoryTypeIndex = k;
 			break;
 		}
@@ -182,7 +182,7 @@ VkDeviceMemory allocateGPUMemory(int index,  VkDevice vkDevice, const VkDeviceSi
 	VkResult ret = (memoryTypeIndex == VK_MAX_MEMORY_TYPES ? VK_ERROR_OUT_OF_HOST_MEMORY : VK_SUCCESS);
 	if (ret != VK_SUCCESS) {
 		cout << memorySize << " GPU bytes requested." << "\n";
-		cout << "Cannot allocated GPU memory type for GPU index " << index;
+		cout << "Cannot allocate GPU memory type for GPU index " << index;
 		if (isFatal) exitOnError("");
 		else return NULL;
 	}

@@ -124,6 +124,15 @@ void initVulkanMiner(VulkanMiner &vulkanMiner,VkDevice vkDevice, CPUMiner cpuMin
 	vulkanMiner.local_memory_size = vulkanMiner.scratchpadsSize1 + vulkanMiner.scratchpadsSize2 + memStateSize +memBranchSize;
 	vulkanMiner.shared_memory_size = memParamSize  + memConstantSize + memInputSize + memOutputSize+ vulkanMiner.debugSize;
 
+	uint64_t gpuMem = getMemorySize(deviceId) * 1024 * 1024;
+	if (vulkanMiner.local_memory_size > gpuMem) {
+		std::cerr << "Error: Configured parameters (cu=" << cu << ", factor=" << threads/cu << ") require " 
+				  << vulkanMiner.local_memory_size / (1024*1024) << " MB of VRAM.\n";
+		std::cerr << "Available VRAM: " << gpuMem / (1024*1024) << " MB.\n";
+		std::cerr << "Please reduce 'factor' in config.json." << std::endl;
+		exitOnError("Insufficient GPU memory");
+	}
+
 	vulkanMiner.gpuLocalMemory = allocateGPUMemory(deviceId, vulkanMiner.vkDevice, vulkanMiner.local_memory_size, true,true);
 	vulkanMiner.gpuSharedMemory = allocateGPUMemory(deviceId, vulkanMiner.vkDevice, vulkanMiner.shared_memory_size, false,true);
 	vulkanMiner.local_size_cn1 = local_size_cn1;
@@ -167,6 +176,7 @@ void initVulkanMiner(VulkanMiner &vulkanMiner,VkDevice vkDevice, CPUMiner cpuMin
 
 	vkGetDeviceQueue(vulkanMiner.vkDevice, computeQueueFamillyIndex, 0, &vulkanMiner.queue);
 	vulkanMiner.memoryBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
+	vulkanMiner.memoryBarrier.pNext = nullptr;
 	vulkanMiner.memoryBarrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
 	vulkanMiner.memoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 	vulkanMiner.commandBufferFilled = false;

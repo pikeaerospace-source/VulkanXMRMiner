@@ -891,7 +891,7 @@ static void hash_process(union hash_state *state, const uint8_t *buf, size_t cou
 	keccak1600(buf, count, (uint8_t*) state);
 }
 
-static void aes_256_assist1(__m128i* t1, __m128i * t2)
+__attribute__((target("aes"))) static void aes_256_assist1(__m128i* t1, __m128i * t2)
 {
 	__m128i t4;
 	*t2 = _mm_shuffle_epi32(*t2, 0xff);
@@ -904,7 +904,7 @@ static void aes_256_assist1(__m128i* t1, __m128i * t2)
 	*t1 = _mm_xor_si128(*t1, *t2);
 }
 
-static void aes_256_assist2(__m128i* t1, __m128i * t3)
+__attribute__((target("aes"))) static void aes_256_assist2(__m128i* t1, __m128i * t3)
 {
 	__m128i t2, t4;
 	t4 = _mm_aeskeygenassist_si128(*t1, 0x00);
@@ -937,7 +937,7 @@ static void aes_256_assist2(__m128i* t1, __m128i * t3)
  * @param expandedKey An output buffer to hold the generated key schedule
  */
 
-static void aes_expand_key(const uint8_t *key, uint8_t *expandedKey) {
+__attribute__((target("aes"))) static void aes_expand_key(const uint8_t *key, uint8_t *expandedKey) {
 	__m128i *ek = R128(expandedKey);
 	__m128i t1, t2, t3;
 
@@ -994,7 +994,7 @@ static void aes_expand_key(const uint8_t *key, uint8_t *expandedKey) {
  * @param nblocks the number of 128 blocks of data to be encrypted
  */
 
-static void aes_pseudo_round(const uint8_t *in, uint8_t *out, const uint8_t *expandedKey, int nblocks) {
+__attribute__((target("aes"))) static void aes_pseudo_round(const uint8_t *in, uint8_t *out, const uint8_t *expandedKey, int nblocks) {
 	__m128i *k = R128(expandedKey);
 	__m128i d;
 	int i;
@@ -1029,7 +1029,7 @@ static void aes_pseudo_round(const uint8_t *in, uint8_t *out, const uint8_t *exp
  * @param nblocks the number of 128 blocks of data to be encrypted
  */
 
-static void aes_pseudo_round_xor(const uint8_t *in, uint8_t *out, const uint8_t *expandedKey, const uint8_t *_xor, int nblocks) {
+__attribute__((target("aes"))) static void aes_pseudo_round_xor(const uint8_t *in, uint8_t *out, const uint8_t *expandedKey, const uint8_t *_xor, int nblocks) {
 	__m128i *k = R128(expandedKey);
 	__m128i *x = R128(_xor);
 	__m128i d;
@@ -4052,7 +4052,7 @@ bool k12_slow_hash(const void *data, size_t length,unsigned char *hash, CPUMiner
  * @param length the length in bytes of the data
  * @param hash a pointer to a buffer in which the final 256 bit hash will be stored
  */
-bool cn_slow_hash(const void *data, size_t length,unsigned char *hash, CPUMiner &cpuMiner, int gpuIndex, uint64_t height, bool miningMode) {
+__attribute__((target("aes"))) bool cn_slow_hash(const void *data, size_t length,unsigned char *hash, CPUMiner &cpuMiner, int gpuIndex, uint64_t height, bool miningMode) {
 	RDATA_ALIGN16 uint8_t expandedKey[240]; 	// These buffers are aligned to use later with SSE functions
 
 	uint8_t text[INIT_SIZE_BYTE];
